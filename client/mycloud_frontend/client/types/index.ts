@@ -3,11 +3,10 @@ export type Role = "ADMIN" | "USER";
 export type LoggedInUser = {
   token: string;
   username: string;
-  role: string;
-  password: string;
-  };
+  role: Role;
+};
 
-  export type FileItem = {
+export type FileItem = {
   id: number;
   fileName: string;
   fileType: string;
