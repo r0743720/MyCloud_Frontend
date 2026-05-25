@@ -6,7 +6,7 @@ const getToken = (): string => {
 };
 
 const login = (username: string, password: string) => {
-    console.log("login fetch call")
+    console.log("login fetch call:", process.env.NEXT_PUBLIC_API_URL)
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/api/auth/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

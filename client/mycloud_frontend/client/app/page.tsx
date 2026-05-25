@@ -1,13 +1,13 @@
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+'use client'
 
-export default function Home() {
-  const router = useRouter();
-
-  useEffect(() => {
-    const user = sessionStorage.getItem("loggedInUser");
-    user ? router.push("/dashboard") : router.push("/login");
-  }, []);
-
-  return null;
+import { useRouter } from 'next/navigation'
+ 
+export default function Page() {
+  const router = useRouter()
+ 
+  return (
+    <button type="button" onClick={() => router.push('/dashboard')}>
+      Dashboard
+    </button>
+  )
 }
