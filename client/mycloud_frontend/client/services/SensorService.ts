@@ -46,5 +46,5 @@ const controlFan = (on: boolean) => {
     });
 };
 
-const SensorService = { getLastest, getHistory, getAlerts};
+const SensorService = { getLastest, getHistory, getAlerts, controlFan};
 export default SensorService;

@@ -34,6 +34,7 @@ const Dashboard = () => {
   const [sensorHistory, setSensorHistory] = useState<SensorReading[]>([]);
   const [latestSensor, setLatestSensor] = useState<SensorReading | null>(null);
   const [error, setError] = useState<string>("");
+  const [fanOn, setFanOn] = useState(false);
 
   useEffect(() => {
     const user = sessionStorage.getItem("loggedInUser");
@@ -77,7 +78,11 @@ const Dashboard = () => {
         value: count,
       }))
     : [];
-
+  const toggleFan = async () => {
+    const newState = !fanOn;
+    await SensorService.controlFan(newState);
+    setFanOn(newState);
+  };
   // Prepare sensor line chart data
   const sensorChartData = sensorHistory.map((r) => ({
     time: new Date(r.timestamp).toLocaleTimeString([], {
@@ -142,7 +147,12 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-
+        <button
+          className={`btn btn-sm ${fanOn ? "btn-danger" : "btn-success"}`}
+          onClick={toggleFan}
+        >
+          Fan: {fanOn ? "ON" : "OFF"}
+        </button>
           {/* File type pie */}
           <div className="col-12 col-md-6">
             <div className="card h-100 shadow-sm">
