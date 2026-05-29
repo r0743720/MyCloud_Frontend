@@ -35,6 +35,8 @@ const Dashboard = () => {
   const [latestSensor, setLatestSensor] = useState<SensorReading | null>(null);
   const [error, setError] = useState<string>("");
   const [fanOn, setFanOn] = useState(false);
+  const [fanLoading, setFanLoading] = useState(false);
+  const [fanError, setFanError] = useState("");
 
   useEffect(() => {
     const user = sessionStorage.getItem("loggedInUser");
@@ -79,9 +81,20 @@ const Dashboard = () => {
       }))
     : [];
   const toggleFan = async () => {
-    const newState = !fanOn;
-    await SensorService.controlFan(newState);
-    setFanOn(newState);
+    setFanLoading(true);
+  setFanError("");
+  try {
+    const res = await SensorService.controlFan(!fanOn);
+    if (res.ok) {
+      setFanOn(!fanOn);
+    } else {
+      setFanError("Failed to control fan.");
+    }
+  } catch (e) {
+    setFanError("Failed to reach server.");
+  } finally {
+    setFanLoading(false);
+  }
   };
   // Prepare sensor line chart data
   const sensorChartData = sensorHistory.map((r) => ({
@@ -147,12 +160,7 @@ const Dashboard = () => {
               </div>
             </div>
           </div>
-        <button
-          className={`btn btn-sm ${fanOn ? "btn-danger" : "btn-success"}`}
-          onClick={toggleFan}
-        >
-          Fan: {fanOn ? "ON" : "OFF"}
-        </button>
+        
           {/* File type pie */}
           <div className="col-12 col-md-6">
             <div className="card h-100 shadow-sm">
@@ -206,16 +214,47 @@ const Dashboard = () => {
               icon: "🔵",
               color: "success",
             },
+            {
+              label: "Cooling Fan",
+              value: fanOn ? "ON" : "OFF",
+              icon: "🌀",
+              color: fanOn ? "danger" : "secondary",
+              isFan: true,
+            },
           ].map((card) => (
-            <div className="col-12 col-md-4" key={card.label}>
+            <div className="col-12 col-md-3" key={card.label}>
               <div className={`card shadow-sm border-${card.color} border-start border-4`}>
-                <div className="card-body d-flex justify-content-between align-items-center">
-                  <div>
+                <div>
                     <p className="text-muted small mb-1">{card.label}</p>
-                    <h4 className={`fw-bold text-${card.color} mb-0`}>{card.value}</h4>
+
+                    <h4 className={`fw-bold text-${card.color} mb-0`}>
+                      {card.value}
+                    </h4>
+
+                    {card.isFan && fanError && (
+                      <p className="text-danger small mb-0">{fanError}</p>
+                    )}
                   </div>
-                  <span style={{ fontSize: "2rem" }}>{card.icon}</span>
-                </div>
+
+                  {card.isFan ? (
+                    <button
+                      className={`btn btn-sm ${
+                        fanOn ? "btn-danger" : "btn-outline-secondary"
+                      }`}
+                      onClick={toggleFan}
+                      disabled={fanLoading}
+                    >
+                      {fanLoading ? (
+                        <span className="spinner-border spinner-border-sm" />
+                      ) : fanOn ? (
+                        "Turn OFF"
+                      ) : (
+                        "Turn ON"
+                      )}
+                    </button>
+                  ) : (
+                    <span style={{ fontSize: "2rem" }}>{card.icon}</span>
+                  )}
               </div>
             </div>
           ))}
