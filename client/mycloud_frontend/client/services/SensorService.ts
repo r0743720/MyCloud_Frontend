@@ -46,5 +46,15 @@ const controlFan = (on: boolean) => {
     });
 };
 
-const SensorService = { getLastest, getHistory, getAlerts, controlFan};
+const getCpuTemp = () => {
+  return fetch(process.env.NEXT_PUBLIC_API_URL + "/api/system/cpu-temp", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${AuthService.getToken()}`,
+    },
+  });
+};
+
+const SensorService = { getLastest, getHistory, getAlerts, controlFan, getCpuTemp};
 export default SensorService;

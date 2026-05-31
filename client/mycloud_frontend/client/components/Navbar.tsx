@@ -36,10 +36,30 @@ const Navbar = () => {
               Files
             </Link>
           </li>
+          <li className="nav-item">
+          <Link
+            className={`nav-link ${
+              router.pathname.startsWith("/duplicates") ? "active" : ""
+            }`}
+            href="/duplicates"
+          >
+            Duplicates
+          </Link>
+        </li>
         </ul>
         <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
           Sign Out
         </button>
+        {JSON.parse(sessionStorage.getItem("loggedInUser") || "{}").role === "ADMIN" && (
+        <li className="nav-item">
+          <Link
+            className={`nav-link ${router.pathname.startsWith("/users") ? "active" : ""}`}
+            href="/users"
+          >
+            Users
+          </Link>
+        </li>
+      )}
       </div>
     </nav>
   );

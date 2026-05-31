@@ -4,8 +4,8 @@ const getAll = () => {
     return fetch(process.env.NEXT_PUBLIC_API_URL + "/api/files", {
         method: "GET",
         headers: {
-            "Content-Type": "applicaiton/json",
-            Authorizaiton: `Bearer ${AuthService.getToken()}`,
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${AuthService.getToken()}`,
         },
     });
 };

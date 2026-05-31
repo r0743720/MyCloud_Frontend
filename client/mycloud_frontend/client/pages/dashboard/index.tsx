@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import Navbar from "@/components/Navbar";
 import StorageService from "@/services/StorageService";
 import SensorService from "@/services/SensorService";
-import { StorageStats, SensorReading } from "@/types";
+import { StorageStats, SensorReading, MovementAlert } from "@/types";
 import {
   BarChart,
   Bar,
@@ -37,6 +37,9 @@ const Dashboard = () => {
   const [fanOn, setFanOn] = useState(false);
   const [fanLoading, setFanLoading] = useState(false);
   const [fanError, setFanError] = useState("");
+  const [movementAlerts, setMovementAlerts] = useState<MovementAlert[]>([]);
+  const [alertDismissed, setAlertDismissed] = useState(false);  
+  const [cpuTemp, setCpuTemp] = useState<number | null>(null);
 
   useEffect(() => {
     const user = sessionStorage.getItem("loggedInUser");
@@ -51,15 +54,26 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [statsRes, historyRes, latestRes] = await Promise.all([
+      const [statsRes, historyRes, latestRes, alertsRes] = await Promise.all([
         StorageService.getStats(),
         SensorService.getHistory(24),
         SensorService.getLastest(),
+        SensorService.getAlerts(1)
       ]);
 
       if (statsRes.ok) setStats(await statsRes.json());
       if (historyRes.ok) setSensorHistory(await historyRes.json());
       if (latestRes.ok) setLatestSensor(await latestRes.json());
+      if (alertsRes.ok) {
+      const alerts = await alertsRes.json();
+      if (alerts.length > 0) setAlertDismissed(false);
+      setMovementAlerts(alerts);
+      const cpuTempRes = await SensorService.getCpuTemp();
+      if (cpuTempRes.ok) {
+        const data = await cpuTempRes.json();
+        setCpuTemp(data.cpuTemperature);
+      }
+    }
     } catch (e) {
       setError("Failed to load dashboard data.");
     }
@@ -110,7 +124,23 @@ const Dashboard = () => {
   return (
     <>
       <Navbar />
-      <div className="container py-4">
+              <div className="container py-4">
+              {movementAlerts.length > 0 && !alertDismissed && (
+          <div className="alert alert-danger alert-dismissible d-flex align-items-center gap-2 mb-4">
+            <span style={{ fontSize: "1.5rem" }}>⚠️</span>
+            <div className="flex-grow-1">
+              <strong>Movement detected!</strong> Last alert:{" "}
+              {new Date(movementAlerts[0].timestamp).toLocaleString()} —
+              acceleration X: {movementAlerts[0].accelerationX.toFixed(2)},
+              Y: {movementAlerts[0].accelerationY.toFixed(2)},
+              Z: {movementAlerts[0].accelerationZ.toFixed(2)} m/s²
+            </div>
+            <button
+              className="btn-close"
+              onClick={() => setAlertDismissed(true)}
+            />
+          </div>
+        )}
         <h1 className="h4 fw-bold text-primary mb-4">Dashboard</h1>
 
         {error && <div className="alert alert-danger">{error}</div>}
@@ -220,6 +250,12 @@ const Dashboard = () => {
               icon: "🌀",
               color: fanOn ? "danger" : "secondary",
               isFan: true,
+            },
+            {
+              label: "CPU Temp",
+              value: cpuTemp !== null ? `${cpuTemp.toFixed(1)} °C` : "—",
+              icon: "🖥️",
+              color: cpuTemp !== null && cpuTemp > 70 ? "danger" : cpuTemp !== null && cpuTemp > 60 ? "warning" : "success",
             },
           ].map((card) => (
             <div className="col-12 col-md-3" key={card.label}>
