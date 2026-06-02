@@ -79,7 +79,7 @@ const Dashboard = () => {
     }
   };
 
-  // Prepare storage bar chart data
+  //  bar chart 
   const storageBarData = stats
     ? [
         { name: "Used", value: stats.usedBytes, fill: "#0d6efd" },
@@ -87,7 +87,7 @@ const Dashboard = () => {
       ]
     : [];
 
-  // Prepare pie chart data from file types
+  // pie chart
   const pieData = stats
     ? Object.entries(stats.byFileType).map(([type, count]) => ({
         name: type.toUpperCase(),
@@ -110,7 +110,7 @@ const Dashboard = () => {
     setFanLoading(false);
   }
   };
-  // Prepare sensor line chart data
+  // line chart 
   const sensorChartData = sensorHistory.map((r) => ({
     time: new Date(r.timestamp).toLocaleTimeString([], {
       hour: "2-digit",
@@ -229,32 +229,32 @@ const Dashboard = () => {
             {
               label: "Temperature",
               value: latestSensor ? `${latestSensor.temperature.toFixed(1)} °C` : "—",
-              icon: "🌡️",
+              icon: "",
               color: "danger",
             },
             {
               label: "Humidity",
               value: latestSensor ? `${latestSensor.humidity.toFixed(1)} %` : "—",
-              icon: "💧",
+              icon: "",
               color: "primary",
             },
             {
               label: "Pressure",
               value: latestSensor ? `${latestSensor.pressure.toFixed(1)} hPa` : "—",
-              icon: "🔵",
+              icon: "",
               color: "success",
             },
             {
               label: "Cooling Fan",
               value: fanOn ? "ON" : "OFF",
-              icon: "🌀",
+              icon: "",
               color: fanOn ? "danger" : "secondary",
               isFan: true,
             },
             {
               label: "CPU Temp",
               value: cpuTemp !== null ? `${cpuTemp.toFixed(1)} °C` : "—",
-              icon: "🖥️",
+              icon: "",
               color: cpuTemp !== null && cpuTemp > 70 ? "danger" : cpuTemp !== null && cpuTemp > 60 ? "warning" : "success",
             },
           ].map((card) => (
